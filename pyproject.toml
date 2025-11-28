@@ -3,13 +3,9 @@ name = "splade-pt"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11,<3.12"
 dependencies = [
     "hydra-core<1.3.2",
     "ipykernel>=7.1.0",
     "pytrec-eval>=0.5",
-    "splade",
 ]
-
-[tool.uv.sources]
-splade = { git = "https://github.com/leobavila/splade.git" }

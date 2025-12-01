@@ -1,5 +1,12 @@
 # SPLADE-PT-BR - Project Status
 
+## 📊 Visual Summary
+
+![Project Summary](images/plots/project_summary_dashboard.png)
+*Comprehensive project overview with architecture, data, features, and use cases*
+
+---
+
 ## ✅ Trained Model
 
 - **Checkpoint**: `splade/experiments/pt/checkpoint/model_ckpt/model_final_checkpoint.tar`
@@ -32,8 +39,14 @@
 
 ## ✅ Generated Visualizations
 
-- **training_loss.png** - Loss curve (150k iterations)
-- **sparsity_info.png** - Sparsity information
+High-quality visualizations available in `docs/images/plots/`:
+
+- **`training_loss_enhanced.png`** - Comprehensive training loss analysis with smoothing and statistics
+- **`sparsity_analysis_dashboard.png`** - Complete sparsity and efficiency metrics dashboard
+- **`project_summary_dashboard.png`** - Project overview with architecture, data, and features
+- **`metrics_comparison_enhanced.png`** - Performance comparison (generated after evaluation)
+
+See [docs/images/README.md](images/README.md) for details on generating and using visualizations.
 
 ## 📦 Hugging Face
 

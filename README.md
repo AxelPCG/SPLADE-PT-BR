@@ -18,6 +18,18 @@
 
 SPLADE-PT-BR is a sparse neural retrieval model optimized for **Brazilian Portuguese** text search. Based on [BERTimbau](https://huggingface.co/neuralmind/bert-base-portuguese-cased) and trained on Portuguese question-answering datasets, it produces interpretable sparse vectors perfect for RAG systems and semantic search.
 
+### 📊 Training Results
+
+<div align="center">
+
+![Training Loss](docs/images/plots/training_loss_enhanced.png)
+*Training convergence over 150k iterations with final loss of 0.000048*
+
+![Sparsity Analysis](docs/images/plots/sparsity_analysis_dashboard.png)
+*Sparsity analysis showing ~99.5% sparse vectors with high efficiency*
+
+</div>
+
 ### Why SPLADE-PT-BR?
 
 - 🎯 **Native Portuguese**: Trained on BERTimbau with Portuguese-specific vocabulary

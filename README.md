@@ -8,7 +8,7 @@
 
 **SPLADE sparse retrieval model trained for Brazilian Portuguese**
 
-[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](docs/USAGE.md) • [Training Details](#training) • [Status](docs/STATUS.md)
+[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](docs/USAGE.md) • [Training](#-training)
 
 </div>
 
@@ -18,98 +18,54 @@
 
 SPLADE-PT-BR is a sparse neural retrieval model optimized for **Brazilian Portuguese** text search. Based on [BERTimbau](https://huggingface.co/neuralmind/bert-base-portuguese-cased) and trained on Portuguese question-answering datasets, it produces interpretable sparse vectors perfect for RAG systems and semantic search.
 
-### 📊 Training Results
-
-<div align="center">
-
-![Training Loss](docs/images/plots/training_loss_enhanced.png)
-*Training convergence over 150k iterations with final loss of 0.000048*
-
-![Sparsity Analysis](docs/images/plots/sparsity_analysis_dashboard.png)
-*Sparsity analysis showing ~99.5% sparse vectors with high efficiency*
-
-</div>
-
 ### Why SPLADE-PT-BR?
 
 - 🎯 **Native Portuguese**: Trained on BERTimbau with Portuguese-specific vocabulary
-- ⚡ **Fast & Efficient**: ~99% sparse vectors enable inverted index search
+- ⚡ **Fast & Efficient**: ~99.5% sparse vectors enable inverted index search
 - 🔍 **Semantic Expansion**: Automatically expands queries with related terms
 - 🛠️ **Easy Integration**: Works with any vector database or custom retrieval systems
 - 📊 **High Quality**: 150K training iterations, final loss: 0.000047
 
-### Quick Start
+### Training Results
+
+<div align="center">
+
+![Training Loss](docs/images/plots/training_loss_enhanced.png)
+*Training convergence over 150k iterations*
+
+![Sparsity Analysis](docs/images/plots/sparsity_analysis_dashboard.png)
+*Sparsity analysis showing ~99.5% sparse vectors*
+
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-# Load from Hugging Face
+# Install system dependencies
+sudo apt-get update && sudo apt-get install -y python3.11-dev build-essential
+
+# Install Python dependencies
+uv sync
+```
+
+### Load Model
+
+```python
 from transformers import AutoTokenizer
 from splade.models.transformer_rep import Splade
 
 model = Splade.from_pretrained("AxelPCG/splade-pt-br")
 tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
-```
-
-For detailed usage examples, see [USAGE.md](docs/USAGE.md).
-
----
-
-## 📦 Installation
-
-### Prerequisites
-
-This project requires Python 3.11+ development headers to compile `pytrec-eval`:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y python3.11-dev build-essential
-```
-
-### Setup
-
-#### Option 1: Automatic (Recommended)
-
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
-   ```
-
-#### Option 2: Manual
-
-   ```bash
-   uv sync
-   ```
-
-### Verification
-
-```bash
-# Check pytrec-eval
-python3.11 -c "import pytrec_eval; print('✅ pytrec-eval OK')"
-
-# Check main dependencies
-python3.11 -c "import torch; import transformers; print('✅ All dependencies OK')"
-```
-
----
-
-## 🚀 Using the Trained Model
-
-### Download from Hugging Face
-
-The trained model is available at: [`AxelPCG/splade-pt-br`](https://huggingface.co/AxelPCG/splade-pt-br)
-
-```python
-from splade.models.transformer_rep import Splade
-
-model = Splade.from_pretrained("AxelPCG/splade-pt-br")
 ```
 
 ### Encode Text
 
 ```python
 import torch
-from transformers import AutoTokenizer
-
-tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
 
 # Encode query
 query = "Qual é a capital do Brasil?"
@@ -123,69 +79,24 @@ indices = torch.nonzero(query_vec).squeeze().tolist()
 values = query_vec[indices].tolist()
 
 print(f"Sparsity: {len(indices)} / {query_vec.shape[0]} dimensions")
-# Output: Sparsity: ~120 / 29794 dimensions (~99.6% sparse)
+# Output: ~120 / 29794 dimensions (~99.6% sparse)
 ```
 
-### Simple Retrieval Example
-
-```python
-# Build a simple inverted index
-def create_inverted_index(documents):
-    index = {}
-    for doc_id, text in documents.items():
-        tokens = tokenizer(text, return_tensors="pt", max_length=256, truncation=True)
-        with torch.no_grad():
-            vec = model(d_kwargs=tokens)["d_rep"].squeeze()
-        
-        indices = torch.nonzero(vec).squeeze().tolist()
-        values = vec[indices].tolist()
-        
-        for idx, val in zip(indices, values):
-            if idx not in index:
-                index[idx] = []
-            index[idx].append((doc_id, val))
-    
-    return index
-
-# Search
-def search(query, index, documents, top_k=5):
-    tokens = tokenizer(query, return_tensors="pt", max_length=256, truncation=True)
-    with torch.no_grad():
-        query_vec = model(q_kwargs=tokens)["q_rep"].squeeze()
-    
-    q_indices = torch.nonzero(query_vec).squeeze().tolist()
-    q_values = query_vec[q_indices].tolist()
-    
-    scores = {}
-    for idx, q_val in zip(q_indices, q_values):
-        if idx in index:
-            for doc_id, d_val in index[idx]:
-                scores[doc_id] = scores.get(doc_id, 0) + (q_val * d_val)
-    
-    results = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
-    return [(doc_id, documents[doc_id], score) for doc_id, score in results]
-
-# Example
-docs = {1: "Brasília é a capital do Brasil", 2: "Python é uma linguagem"}
-index = create_inverted_index(docs)
-results = search("capital brasileira", index, docs)
-```
-
-See [USAGE.md](docs/USAGE.md) for complete examples.
+For complete examples including retrieval, see [USAGE.md](docs/USAGE.md).
 
 ---
 
-## 📊 Model Performance
+## 📊 Model Details
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| **Training Iterations** | 150,000 | Full convergence |
-| **Final Loss** | 0.000047 | Excellent convergence |
-| **Vocabulary Size** | 29,794 | Portuguese-optimized |
-| **Sparsity** | ~99.5% | 100-150 active dims |
-| **Base Model** | BERTimbau | neuralmind/bert-base-portuguese-cased |
-
-*Evaluation metrics available after running evaluation pipeline (see below)*
+| Metric | Value |
+|--------|-------|
+| **Base Model** | BERTimbau (neuralmind/bert-base-portuguese-cased) |
+| **Training Dataset** | mMARCO Portuguese (unicamp-dl/mmarco) |
+| **Validation Dataset** | mRobust (unicamp-dl/mrobust) |
+| **Iterations** | 150,000 |
+| **Final Loss** | 0.000047 |
+| **Vocabulary Size** | 29,794 |
+| **Sparsity** | ~99.5% (100-150 active dims) |
 
 ---
 
@@ -193,12 +104,12 @@ See [USAGE.md](docs/USAGE.md) for complete examples.
 
 <a name="training"></a>
 
-### Training Configuration
+### Configuration
 
 ```yaml
 Base Model: neuralmind/bert-base-portuguese-cased
-Training Dataset: mMARCO Portuguese (unicamp-dl/mmarco)
-Validation Dataset: mRobust (unicamp-dl/mrobust)
+Training Data: mMARCO Portuguese (unicamp-dl/mmarco)
+Validation Data: mRobust (unicamp-dl/mrobust)
 Iterations: 150,000
 Batch Size: 8 (effective: 32 with gradient accumulation)
 Learning Rate: 2e-5
@@ -208,90 +119,53 @@ Mixed Precision: FP16
 
 ### Run Training
 
-#### Option 1: Using the Training Script (Recommended)
-
-The modularized training script (`scripts/training/train_splade_pt.py`) provides a complete workflow:
+**Using Training Script (Recommended):**
 
 ```bash
-# Full training workflow
+# Full training pipeline
 python scripts/training/train_splade_pt.py
+
+# Skip completed steps
+python scripts/training/train_splade_pt.py --skip-setup --skip-download
 ```
 
-The script will:
-1. Clone and patch the SPLADE repository
-2. Download training and validation datasets (mMARCO and mRobust)
-3. Convert QRELS to JSON format
-4. Generate Hydra configuration files
-5. Execute model training
+**Using Jupyter Notebook:**
 
-**Skip completed steps:**
-```bash
-# Skip repository setup (already cloned and patched)
-python scripts/training/train_splade_pt.py --skip-setup
+The training notebook is available in `notebooks/SPLADE_v2_PTBR_treinamento.ipynb`.
 
-# Skip dataset download (datasets already downloaded)
-python scripts/training/train_splade_pt.py --skip-download
-
-# Skip QREL conversion (already converted)
-python scripts/training/train_splade_pt.py --skip-qrel
-
-# Skip configuration generation (configs already exist)
-python scripts/training/train_splade_pt.py --skip-config
-
-# Only run training (everything else already done)
-python scripts/training/train_splade_pt.py --skip-setup --skip-download --skip-qrel --skip-config
-```
-
-**Command line options:**
-- `--skip-setup`: Skip repository cloning and patching
-- `--skip-download`: Skip dataset download
-- `--skip-qrel`: Skip QREL to JSON conversion
-- `--skip-config`: Skip configuration file generation
-- `--skip-training`: Skip training execution (only prepare environment)
-
-#### Option 2: Manual Training
+**Manual Training:**
 
 ```bash
 cd splade
 python3 -m splade.train_from_triplets_ids +config=config_splade_pt
 ```
 
-#### Option 3: Jupyter Notebook
-
-The original training notebook is available in `notebooks/SPLADE_v2_PTBR_treinamento.ipynb` for interactive use.
-
-**Note:** The notebook automatically detects the project root and applies necessary patches.
-
 ### Important Notes
 
 - The `splade/` directory is **not included** in this repository
-- It is automatically cloned from `https://github.com/leobavila/splade.git` when you run the training script or notebook
-- Necessary compatibility patches (AdamW, lazy loading, memory optimizations) are applied automatically
-- This approach keeps the repository clean and ensures you always get the latest SPLADE code with our Portuguese-specific patches
+- It is automatically cloned from `https://github.com/leobavila/splade.git` during training
+- Necessary patches (AdamW, lazy loading, memory optimizations) are applied automatically
+- This keeps the repository clean and ensures you get the latest SPLADE code with Portuguese-specific patches
 
 ---
 
 ## 📈 Evaluation
 
-### Run Complete Evaluation
-
 ```bash
 # 1. Index documents
-cd splade
-python3 -m splade.index +config=config_splade_pt
+cd splade && python3 -m splade.index +config=config_splade_pt
 
 # 2. Retrieve and calculate metrics
 python3 -m splade.retrieve +config=config_splade_pt
 
 # 3. Compare with original SPLADE
-cd ..
-python3 scripts/utils/compare_models.py
+cd .. && python3 scripts/utils/compare_models.py
 
 # 4. Generate visualizations
 python3 scripts/utils/visualize_results.py
 ```
 
-Results will be saved to `splade/experiments/pt/out/`.
+Results are saved to `splade/experiments/pt/out/` and `docs/images/plots/`.
 
 ---
 
@@ -299,59 +173,23 @@ Results will be saved to `splade/experiments/pt/out/`.
 
 ```
 SPLADE-PT-BR/
-├── splade/                       # Main SPLADE package
-│   ├── conf/                     # Hydra configurations
-│   │   ├── config_splade_pt.yaml
-│   │   ├── train/config/splade_pt.yaml
-│   │   ├── index/pt.yaml
-│   │   └── retrieve_evaluate/pt.yaml
-│   ├── splade/                   # Source code
-│   │   ├── models/               # Model implementations
-│   │   ├── tasks/                # Training/evaluation tasks
-│   │   └── losses/               # Loss functions & regularization
-│   ├── data/pt/                  # Portuguese datasets
-│   │   ├── triplets/             # Training triplets
-│   │   └── val_retrieval/        # Validation data
-│   └── experiments/pt/           # Training outputs
-│       ├── checkpoint/           # Model checkpoints
-│       ├── index/                # Sparse indexes
-│       └── out/                  # Evaluation results
-├── notebooks/                    # Jupyter notebooks
-│   └── SPLADE_v2_PTBR_treinamento.ipynb  # Training notebook
-├── scripts/                      # All utility scripts
-│   ├── training/                # Training scripts
-│   │   └── train_splade_pt.py   # Modularized training script
-│   ├── utils/                   # Utility scripts
-│   │   ├── upload_to_hf.py      # Upload to HuggingFace
-│   │   ├── compare_models.py    # Model comparison
-│   │   └── visualize_results.py # Results visualization
-│   ├── setup.sh                 # System dependencies setup
-│   └── setup_env.sh             # Environment configuration
 ├── docs/                         # Documentation
-│   ├── MODEL_CARD.md            # Hugging Face model card
-│   ├── USAGE.md                 # Detailed usage guide
-│   └── STATUS.md                # Training status and metrics
-├── model_metadata.json           # Training metadata
-├── main.py                      # Main entry point
-└── README.md                    # This file
+│   ├── MODEL_CARD.md            # HuggingFace model card
+│   ├── USAGE.md                 # Complete usage guide
+│   └── images/plots/            # Training visualizations
+├── notebooks/                    # Jupyter notebooks
+│   └── SPLADE_v2_PTBR_treinamento.ipynb
+├── scripts/                      # Utility scripts
+│   ├── training/
+│   │   └── train_splade_pt.py   # Training pipeline
+│   └── utils/
+│       ├── upload_to_hf.py      # Upload to HuggingFace
+│       ├── compare_models.py    # Model comparison
+│       └── visualize_results.py # Generate plots
+├── splade/                       # SPLADE package (auto-cloned)
+├── main.py                       # Main entry point
+└── pyproject.toml               # Dependencies
 ```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
----
-
-## 📄 License
-
-Apache 2.0 License - see [LICENSE](LICENSE) file.
 
 ---
 
@@ -361,14 +199,12 @@ Apache 2.0 License - see [LICENSE](LICENSE) file.
 - **leobavila/splade** - Fork used in this project ([leobavila/splade](https://github.com/leobavila/splade))
 - **BERTimbau** by Neuralmind team
 - **mMARCO Portuguese** and **mRobust Portuguese** datasets by UNICAMP-DL
-- **Quati Dataset** - Inspiration from the work on native Portuguese IR datasets
+- **Quati Dataset** - Inspiration from native Portuguese IR research by Bueno et al. (2024)
 - Hugging Face for model hosting
 
 ### Inspiration
 
-This project was inspired by research on native Portuguese information retrieval datasets:
-- **Quati Dataset**: Bueno et al. (2024) demonstrated the importance of native Portuguese IR datasets over translated ones for better capturing socio-cultural aspects of Brazilian Portuguese
-- **UNICAMP-DL Research**: Their pioneering work on Portuguese NLP and information retrieval systems
+This project was inspired by the [Quati dataset](https://arxiv.org/abs/2404.06976) research, which demonstrated the importance of native Portuguese IR datasets over translated ones for better capturing socio-cultural aspects of Brazilian Portuguese.
 
 ---
 
@@ -388,8 +224,6 @@ If you use this model, please cite:
 
 ### Related Work
 
-This project builds upon research in Portuguese information retrieval:
-
 ```bibtex
 @article{bueno2024quati,
   title={Quati: A Brazilian Portuguese Information Retrieval Dataset from Native Speakers},
@@ -404,13 +238,9 @@ This project builds upon research in Portuguese information retrieval:
   author={Bonifacio, Luiz and Campiotti, Israel and Lotufo, Roberto and Nogueira, Rodrigo},
   booktitle={Proceedings of STIL 2021},
   year={2021},
-  organization={SBC},
   url={https://sol.sbc.org.br/index.php/stil/article/view/31136}
 }
-```
 
-Original SPLADE paper and implementation:
-```bibtex
 @inproceedings{formal2021splade,
   title={SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking},
   author={Formal, Thibault and Piwowarski, Benjamin and Clinchant, St{\'e}phane},
@@ -419,12 +249,18 @@ Original SPLADE paper and implementation:
 }
 ```
 
-**Implementation**: This project uses the [leobavila/splade](https://github.com/leobavila/splade) fork, which is based on the original [naver/splade](https://github.com/naver/splade) implementation.
+**Implementation**: This project uses the [leobavila/splade](https://github.com/leobavila/splade) fork, based on the original [naver/splade](https://github.com/naver/splade) implementation.
+
+---
+
+## 📄 License
+
+Apache 2.0 License - see [LICENSE](LICENSE) file.
 
 ---
 
 <div align="center">
-  
-**[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](docs/USAGE.md)** • **[Status](docs/STATUS.md)**
+
+**[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](docs/USAGE.md)**
 
 </div>

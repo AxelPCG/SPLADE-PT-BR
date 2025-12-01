@@ -26,9 +26,9 @@
 
 ## ✅ Functional Scripts
 
-1. **`upload_to_hf.py`** - Upload to HuggingFace ✓
-2. **`compare_models.py`** - Comparison with original SPLADE ✓
-3. **`visualize_results.py`** - Graphs and visualizations ✓
+1. **`scripts/utils/upload_to_hf.py`** - Upload to HuggingFace ✓
+2. **`scripts/utils/compare_models.py`** - Comparison with original SPLADE ✓
+3. **`scripts/utils/visualize_results.py`** - Graphs and visualizations ✓
 
 ## ✅ Generated Visualizations
 
@@ -45,8 +45,8 @@
 ## 📝 Documentation
 
 - **README.md** - Main project documentation
-- **USAGE.md** - Complete usage guide (generic for any vector database)
-- **model_card.md** - HuggingFace model card
+- **docs/USAGE.md** - Complete usage guide (generic for any vector database)
+- **docs/MODEL_CARD.md** - HuggingFace model card
 
 ## 🎯 Model Usage
 
@@ -81,8 +81,8 @@ python -m splade.retrieve config=config_splade_pt
 
 # Compare and visualize
 cd ..
-python compare_models.py
-python visualize_results.py
+python scripts/utils/compare_models.py
+python scripts/utils/visualize_results.py
 ```
 
 ## 📊 Useful Commands

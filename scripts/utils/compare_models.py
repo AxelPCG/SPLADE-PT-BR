@@ -37,8 +37,8 @@ ORIGINAL_SPLADE_METRICS = {
     }
 }
 
-# Paths
-PROJECT_ROOT = Path(__file__).parent
+# Paths (script is in scripts/utils/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 SPLADE_DIR = PROJECT_ROOT / "splade"
 RESULTS_DIR = SPLADE_DIR / "experiments" / "pt" / "out"
 PERF_FILE = RESULTS_DIR / "perf_all_datasets.json"

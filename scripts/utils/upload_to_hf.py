@@ -39,12 +39,12 @@ HF_USERNAME = os.getenv("HF_USERNAME", "AxelPCG")
 MODEL_NAME = "splade-pt-br"
 REPO_ID = f"{HF_USERNAME}/{MODEL_NAME}"
 
-# Paths
-PROJECT_ROOT = Path(__file__).parent
+# Paths (script is in scripts/utils/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 CHECKPOINT_DIR = PROJECT_ROOT / "splade" / "experiments" / "pt" / "checkpoint"
 MODEL_CHECKPOINT = CHECKPOINT_DIR / "model_ckpt" / "model_final_checkpoint.tar"
 CONFIG_FILE = CHECKPOINT_DIR / "config.yaml"
-MODEL_CARD = PROJECT_ROOT / "model_card.md"
+MODEL_CARD = PROJECT_ROOT / "docs" / "MODEL_CARD.md"
 MODEL_METADATA = PROJECT_ROOT / "model_metadata.json"
 
 # Temporary directory for preparing upload

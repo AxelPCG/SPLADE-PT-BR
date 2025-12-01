@@ -27,8 +27,8 @@ except ImportError:
     sys.exit(1)
 
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.absolute()
+# Project root directory (script is in scripts/training/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent.absolute()
 SPLADE_DIR = PROJECT_ROOT / "splade"
 DATA_DIR = PROJECT_ROOT / "data"
 

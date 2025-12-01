@@ -8,7 +8,7 @@
 
 **SPLADE sparse retrieval model trained for Brazilian Portuguese**
 
-[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](USAGE.md) • [Training Details](#training)
+[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](docs/USAGE.md) • [Training Details](#training) • [Status](docs/STATUS.md)
 
 </div>
 
@@ -37,7 +37,7 @@ model = Splade.from_pretrained("AxelPCG/splade-pt-br")
 tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
 ```
 
-For detailed usage examples, see [USAGE.md](USAGE.md).
+For detailed usage examples, see [USAGE.md](docs/USAGE.md).
 
 ---
 
@@ -159,7 +159,7 @@ index = create_inverted_index(docs)
 results = search("capital brasileira", index, docs)
 ```
 
-See [USAGE.md](USAGE.md) for complete examples.
+See [USAGE.md](docs/USAGE.md) for complete examples.
 
 ---
 
@@ -198,11 +198,11 @@ Mixed Precision: FP16
 
 #### Option 1: Using the Training Script (Recommended)
 
-The modularized training script (`train_splade_pt.py`) provides a complete workflow:
+The modularized training script (`scripts/training/train_splade_pt.py`) provides a complete workflow:
 
 ```bash
 # Full training workflow
-python train_splade_pt.py
+python scripts/training/train_splade_pt.py
 ```
 
 The script will:
@@ -215,19 +215,19 @@ The script will:
 **Skip completed steps:**
 ```bash
 # Skip repository setup (already cloned and patched)
-python train_splade_pt.py --skip-setup
+python scripts/training/train_splade_pt.py --skip-setup
 
 # Skip dataset download (datasets already downloaded)
-python train_splade_pt.py --skip-download
+python scripts/training/train_splade_pt.py --skip-download
 
 # Skip QREL conversion (already converted)
-python train_splade_pt.py --skip-qrel
+python scripts/training/train_splade_pt.py --skip-qrel
 
 # Skip configuration generation (configs already exist)
-python train_splade_pt.py --skip-config
+python scripts/training/train_splade_pt.py --skip-config
 
 # Only run training (everything else already done)
-python train_splade_pt.py --skip-setup --skip-download --skip-qrel --skip-config
+python scripts/training/train_splade_pt.py --skip-setup --skip-download --skip-qrel --skip-config
 ```
 
 **Command line options:**
@@ -273,10 +273,10 @@ python3 -m splade.retrieve +config=config_splade_pt
 
 # 3. Compare with original SPLADE
 cd ..
-python3 compare_models.py
+python3 scripts/utils/compare_models.py
 
 # 4. Generate visualizations
-python3 visualize_results.py
+python3 scripts/utils/visualize_results.py
 ```
 
 Results will be saved to `splade/experiments/pt/out/`.
@@ -306,13 +306,21 @@ SPLADE-PT-BR/
 │       └── out/                  # Evaluation results
 ├── notebooks/                    # Jupyter notebooks
 │   └── SPLADE_v2_PTBR_treinamento.ipynb  # Training notebook
-├── train_splade_pt.py           # Modularized training script
-├── model_card.md                 # Hugging Face model card
+├── scripts/                      # All utility scripts
+│   ├── training/                # Training scripts
+│   │   └── train_splade_pt.py   # Modularized training script
+│   ├── utils/                   # Utility scripts
+│   │   ├── upload_to_hf.py      # Upload to HuggingFace
+│   │   ├── compare_models.py    # Model comparison
+│   │   └── visualize_results.py # Results visualization
+│   ├── setup.sh                 # System dependencies setup
+│   └── setup_env.sh             # Environment configuration
+├── docs/                         # Documentation
+│   ├── MODEL_CARD.md            # Hugging Face model card
+│   ├── USAGE.md                 # Detailed usage guide
+│   └── STATUS.md                # Training status and metrics
 ├── model_metadata.json           # Training metadata
-├── upload_to_hf.py              # Upload script
-├── compare_models.py            # Comparison script
-├── visualize_results.py         # Visualization script
-├── USAGE.md                     # Detailed usage guide
+├── main.py                      # Main entry point
 └── README.md                    # This file
 ```
 
@@ -402,6 +410,6 @@ Original SPLADE paper:
 
 <div align="center">
   
-**[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](USAGE.md)**
+**[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](docs/USAGE.md)** • **[Status](docs/STATUS.md)**
 
 </div>

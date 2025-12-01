@@ -26,8 +26,8 @@ matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Paths
-PROJECT_ROOT = Path(__file__).parent
+# Paths (script is in scripts/utils/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 SPLADE_DIR = PROJECT_ROOT / "splade"
 CHECKPOINT_DIR = SPLADE_DIR / "experiments" / "pt" / "checkpoint"
 RESULTS_DIR = SPLADE_DIR / "experiments" / "pt" / "out"
@@ -124,7 +124,7 @@ def plot_metrics_comparison():
     
     if not COMPARISON_FILE.exists():
         print(f"   ⚠️  Comparison file not found: {COMPARISON_FILE}")
-        print("   Run compare_models.py first")
+        print("   Run scripts/utils/compare_models.py first")
         return
     
     with open(COMPARISON_FILE, 'r') as f:

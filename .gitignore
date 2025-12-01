@@ -15,6 +15,7 @@ venv/
 *qdrant_storage*
 llm-server-env/
 aws_bastion.pem
+data/
 
 chroma_db/
 # Python

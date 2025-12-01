@@ -1,35 +1,35 @@
 #!/bin/bash
-# Script de setup para instalar dependências do sistema necessárias para o projeto
+# Setup script to install system dependencies required for the project
 
 set -e
 
-echo "🔍 Verificando dependências do sistema..."
+echo "🔍 Checking system dependencies..."
 
-# Verificar se python3.11-dev está instalado
+# Check if python3.11-dev is installed
 if ! dpkg -l | grep -q "python3.11-dev"; then
-    echo "❌ python3.11-dev não está instalado"
-    echo "📦 Instalando python3.11-dev..."
+    echo "❌ python3.11-dev is not installed"
+    echo "📦 Installing python3.11-dev..."
     sudo apt-get update
     sudo apt-get install -y python3.11-dev build-essential
 else
-    echo "✅ python3.11-dev já está instalado"
+    echo "✅ python3.11-dev is already installed"
 fi
 
-# Verificar se Python.h existe
+# Check if Python.h exists
 if [ ! -f "/usr/include/python3.11/Python.h" ]; then
-    echo "❌ Python.h não encontrado em /usr/include/python3.11/"
-    echo "📦 Tentando instalar python3.11-dev novamente..."
+    echo "❌ Python.h not found in /usr/include/python3.11/"
+    echo "📦 Trying to install python3.11-dev again..."
     sudo apt-get install -y python3.11-dev
 else
-    echo "✅ Python.h encontrado"
+    echo "✅ Python.h found"
 fi
 
-echo "✅ Dependências do sistema verificadas!"
+echo "✅ System dependencies verified!"
 echo ""
-echo "📦 Instalando dependências do projeto com uv..."
+echo "📦 Installing project dependencies with uv..."
 cd "$(dirname "$0")"
 uv sync
 
 echo ""
-echo "✅ Setup concluído!"
+echo "✅ Setup completed!"
 

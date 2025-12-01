@@ -345,7 +345,8 @@ Apache 2.0 License - see [LICENSE](LICENSE) file.
 
 ## 🙏 Acknowledgments
 
-- **SPLADE** original paper and implementation by Formal et al.
+- **SPLADE** - Original implementation by NAVER Labs ([naver/splade](https://github.com/naver/splade))
+- **leobavila/splade** - Fork used in this project ([leobavila/splade](https://github.com/leobavila/splade))
 - **BERTimbau** by Neuralmind team
 - **mMARCO Portuguese** and **mRobust Portuguese** datasets by UNICAMP-DL
 - **Quati Dataset** - Inspiration from the work on native Portuguese IR datasets
@@ -396,7 +397,7 @@ This project builds upon research in Portuguese information retrieval:
 }
 ```
 
-Original SPLADE paper:
+Original SPLADE paper and implementation:
 ```bibtex
 @inproceedings{formal2021splade,
   title={SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking},
@@ -405,6 +406,8 @@ Original SPLADE paper:
   year={2021}
 }
 ```
+
+**Implementation**: This project uses the [leobavila/splade](https://github.com/leobavila/splade) fork, which is based on the original [naver/splade](https://github.com/naver/splade) implementation.
 
 ---
 

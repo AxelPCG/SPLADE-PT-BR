@@ -236,6 +236,8 @@ This work builds upon the following research:
 2. **mMARCO**: Bonifacio, L., Campiotti, I., Lotufo, R., & Nogueira, R. (2021). *mMARCO: A Multilingual Version of MS MARCO Passage Ranking Dataset*. Proceedings of STIL 2021. [https://sol.sbc.org.br/index.php/stil/article/view/31136](https://sol.sbc.org.br/index.php/stil/article/view/31136)
 
 3. **SPLADE**: Formal, T., Piwowarski, B., & Clinchant, S. (2021). *SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking*. SIGIR 2021.
+   - Original implementation: [naver/splade](https://github.com/naver/splade)
+   - Fork used in this project: [leobavila/splade](https://github.com/leobavila/splade)
 
 4. **BERTimbau**: Souza, F., Nogueira, R., & Lotufo, R. (2020). *BERTimbau: Pretrained BERT Models for Brazilian Portuguese*. BRACIS 2020.
 
@@ -245,7 +247,8 @@ Special thanks to:
 - **UNICAMP-DL team** for the mMARCO and mRobust Portuguese datasets
 - **Quati dataset authors** for pioneering native Portuguese IR research
 - **NeuralMind** for the BERTimbau model
-- **Original SPLADE authors** for the model architecture
+- **NAVER Labs** for the original SPLADE implementation
+- **leobavila** for the SPLADE fork that enabled Portuguese adaptations
 
 ## License
 

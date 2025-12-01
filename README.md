@@ -404,6 +404,4 @@ Original SPLADE paper:
   
 **[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](USAGE.md)**
 
-Made with ❤️ for the Portuguese NLP community
-
 </div>

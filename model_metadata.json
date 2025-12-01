@@ -1,0 +1,109 @@
+{
+  "model_name": "SPLADE-PT-BR",
+  "version": "1.0.0",
+  "description": "SPLADE sparse retrieval model trained for Brazilian Portuguese",
+  "author": "AxelPCG",
+  "release_date": "2025-12-01",
+  
+  "base_model": {
+    "name": "neuralmind/bert-base-portuguese-cased",
+    "type": "BERTimbau",
+    "language": "Portuguese (Brazilian)",
+    "vocab_size": 29794
+  },
+  
+  "training": {
+    "training_dataset": "mMARCO Portuguese (unicamp-dl/mmarco)",
+    "validation_dataset": "mRobust (unicamp-dl/mrobust)",
+    "num_iterations": 150000,
+    "final_loss": 0.000047,
+    "batch_size": 8,
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_steps": 6000,
+    "max_length": 256,
+    "fp16": true,
+    "optimizer": "AdamW",
+    "scheduler": "linear_with_warmup",
+    
+    "regularization": {
+      "type": "FLOPS",
+      "lambda_q": 0.0003,
+      "lambda_d": 0.0001,
+      "T": 50000
+    }
+  },
+  
+  "model_specs": {
+    "architecture": "SPLADE",
+    "aggregation": "max",
+    "output_dim": 29794,
+    "expected_sparsity": 0.99,
+    "avg_active_dims_query": 120,
+    "avg_active_dims_doc": 150
+  },
+  
+  "performance": {
+    "note": "Metrics will be updated after complete evaluation",
+    "expected": {
+      "MRR@10": "0.25-0.35",
+      "Recall@100": "0.85-0.95",
+      "Recall@1000": "0.95-0.99"
+    }
+  },
+  
+  "usage": {
+    "primary_use_case": "Sparse vector retrieval for Portuguese RAG systems",
+    "recommended_for": [
+      "Question answering in Portuguese",
+      "Document retrieval with Qdrant",
+      "Hybrid search (sparse + dense)",
+      "Interpretable search results"
+    ],
+    "integration": {
+      "qdrant": "Use with SparseVectorParams",
+      "elasticsearch": "Compatible with sparse_vector field type",
+      "custom": "Standard inverted index on non-zero dimensions"
+    }
+  },
+  
+  "files": {
+    "checkpoint": "model_final_checkpoint.tar",
+    "config": "config.yaml",
+    "tokenizer": "neuralmind/bert-base-portuguese-cased",
+    "size_mb": 450
+  },
+  
+  "huggingface": {
+    "repo_id": "AxelPCG/splade-pt-br",
+    "model_type": "splade",
+    "pipeline_tag": "feature-extraction",
+    "license": "apache-2.0"
+  },
+  
+  "comparison_with_original": {
+    "original_model": "SPLADE++",
+    "original_language": "English",
+    "original_mrr10": 0.368,
+    "improvements_for_portuguese": [
+      "Native Portuguese vocabulary",
+      "Contextual expansion in Portuguese",
+      "No subword tokenization for PT words",
+      "Better semantic understanding of Brazilian Portuguese"
+    ]
+  },
+  
+  "limitations": [
+    "Optimized for Brazilian Portuguese",
+    "Not tested on European Portuguese",
+    "May require domain adaptation for specialized fields",
+    "Max sequence length: 256 tokens"
+  ],
+  
+  "citation": {
+    "bibtex": "@misc{splade-pt-br-2025, author = {Axel Chepanski}, title = {SPLADE-PT-BR: Sparse Retrieval for Portuguese}, year = {2025}, publisher = {Hugging Face}, url = {https://huggingface.co/AxelPCG/splade-pt-br}}"
+  }
+}
+

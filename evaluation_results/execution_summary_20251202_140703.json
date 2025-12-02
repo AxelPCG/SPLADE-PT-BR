@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-12-02T14:07:03.297439",
+  "progress": {
+    "total_steps": 5,
+    "completed_steps": 4,
+    "total_time_seconds": 35.48318648338318,
+    "total_time_formatted": "35.5s",
+    "step_times": [
+      5.054473876953125e-05,
+      32.83423948287964,
+      0.0004909038543701172,
+      2.6483209133148193
+    ],
+    "average_step_time": 8.8707754611969
+  },
+  "steps": {
+    "PT-BR Indexing": true,
+    "PT-BR Retrieval": true,
+    "EN Indexing": false,
+    "Comparison Report": true,
+    "Visualization": true
+  },
+  "comparison_available": false,
+  "success": false,
+  "output_locations": {
+    "pt_br_metrics": "/home/user/Projects/SPLADE-PT-BR/splade/experiments/pt/out/perf_all_datasets.json",
+    "en_metrics": null,
+    "comparison_report": "/home/user/Projects/SPLADE-PT-BR/splade/experiments/comparison_report_detailed.json",
+    "plots": "/home/user/Projects/SPLADE-PT-BR/docs/images/plots",
+    "evaluation_results": "/home/user/Projects/SPLADE-PT-BR/evaluation_results"
+  }
+}

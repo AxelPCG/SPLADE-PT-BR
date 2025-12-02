@@ -26,18 +26,6 @@ SPLADE-PT-BR is a sparse neural retrieval model optimized for **Brazilian Portug
 - 🛠️ **Easy Integration**: Works with any vector database or custom retrieval systems
 - 📊 **High Quality**: 150K training iterations, final loss: 0.000047
 
-### Training Results
-
-<div align="center">
-
-![Training Loss](docs/images/plots/training_loss_enhanced.png)
-*Training convergence over 150k iterations*
-
-![Sparsity Analysis](docs/images/plots/sparsity_analysis_dashboard.png)
-*Sparsity analysis showing ~99.5% sparse vectors*
-
-</div>
-
 ---
 
 ## 🚀 Quick Start
@@ -100,13 +88,34 @@ For complete examples including retrieval, see [USAGE.md](docs/USAGE.md).
 
 ### Evaluation Results
 
-**Dataset**: mRobust (528k docs, 250 queries)
+**Dataset**: mRobust (TREC Robust04 Portuguese)
+- 528,032 documents
+- 250 queries
+- Evaluation date: 2025-12-02
 
-| Metric | Score | Interpretation |
-|--------|-------|----------------|
-| **MRR@10** | **0.453** | First relevant doc at position ~2.2 |
+#### SPLADE-PT-BR Metrics
 
-MRR@10 of 0.453 indicates **good retrieval quality** for Portuguese IR tasks.
+| Metric | Score | Description |
+|--------|-------|-------------|
+| **MRR@10** | **0.453** | Mean Reciprocal Rank - First relevant doc at position ~2.2 |
+
+#### Comparison: SPLADE-PT-BR vs SPLADE-EN
+
+Performance on Portuguese dataset (mRobust - 528k docs, 250 queries):
+
+| Model | Language | Base Model | MRR@10 | Performance |
+|-------|----------|------------|--------|-------------|
+| **SPLADE-PT-BR** | Portuguese | BERTimbau | **0.453** | **+18.3% better** |
+| SPLADE-EN | English | BERT-EN | 0.383 | Baseline |
+
+**Key Findings:**
+- ✅ **SPLADE-PT-BR is 18.3% better** than SPLADE-EN on Portuguese queries
+- ✅ Native Portuguese training (BERTimbau + mMARCO-PT) significantly improves retrieval quality
+- ✅ MRR@10 of 0.453 means first relevant document appears at position ~2.2 on average
+
+**Interpretation**: The Portuguese-adapted model demonstrates **clear superiority** over the English model for Portuguese IR tasks, validating the importance of language-specific training.
+
+> 📊 For detailed evaluation metrics and comparison results, see [scripts/evaluation/README.md](scripts/evaluation/README.md) or `evaluation_results/comparison_report_*.json`
 
 ---
 

@@ -101,7 +101,7 @@ poetry.lock
 
 hf_cache/
 
-# HuggingFace upload files (used only for HF, not for repo)
+# HuggingFace files (used only for HF upload, not for repo)
 docs/MODEL_CARD.md
 scripts/utils/upload_to_hf.py
 

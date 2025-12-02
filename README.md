@@ -119,6 +119,93 @@ Performance on Portuguese dataset (mRobust - 528k docs, 250 queries):
 
 ---
 
+## 📚 Dataset Split Methodology
+
+### SPLADE-PT-BR (This Model)
+
+**Training Phase:**
+- **Dataset**: [mMARCO Portuguese](https://huggingface.co/datasets/unicamp-dl/mmarco) (`unicamp-dl/mmarco`)
+  - **Corpus**: `portuguese_collection.tsv` (~8.8M documents)
+  - **Training Queries**: `portuguese_queries.train.tsv` (training queries)
+  - **Triplets**: `triples.train.ids.small.tsv` (query-positive doc-negative doc triplets)
+- **Base Model**: BERTimbau (`neuralmind/bert-base-portuguese-cased`)
+- **Purpose**: Learn Portuguese-specific semantic expansion and term weighting
+
+**Validation Phase (during training):**
+- **Dataset**: [mRobust](https://huggingface.co/datasets/unicamp-dl/mrobust) (`unicamp-dl/mrobust`)
+  - Used for validation checkpoints during training
+  - Ensures the model generalizes to unseen Portuguese data
+
+**Test/Evaluation Phase:**
+- **Dataset**: mRobust (TREC Robust04 Portuguese translation)
+  - **Documents**: 528,032 Portuguese documents
+  - **Queries**: 250 test queries in Portuguese
+  - **QRELs**: Relevance judgments (which docs are relevant for each query)
+- **Purpose**: Final evaluation on completely unseen data
+
+**✅ No Data Leakage**: Training (mMARCO) and testing (mRobust) are **completely different datasets** with different documents and queries, ensuring valid evaluation.
+
+---
+
+### SPLADE-EN (Original NAVER Model)
+
+**Training Phase:**
+- **Dataset**: [MS MARCO](https://microsoft.github.io/msmarco/) (English)
+  - **Corpus**: ~8.8M English documents
+  - **Training Queries**: ~500k English queries
+  - **Triplets**: Query-positive-negative triplets in English
+- **Base Model**: BERT-base-uncased (English vocabulary)
+- **Model**: `naver/splade-cocondenser-ensembledistil`
+
+**Original Test Phase:**
+- **Datasets**: BEIR, MS MARCO Dev, TREC (all in English)
+- Evaluated on standard English IR benchmarks
+
+**Cross-Lingual Test (in this project):**
+- **Dataset**: mRobust Portuguese (same as SPLADE-PT-BR test)
+- **Purpose**: Compare English model performance on Portuguese data
+- **Result**: MRR@10 = 0.383 (significantly lower than PT-BR's 0.453)
+
+---
+
+### Dataset Comparison Table
+
+| Aspect | SPLADE-EN | SPLADE-PT-BR |
+|--------|-----------|--------------|
+| **Training Dataset** | MS MARCO (English) | mMARCO (Portuguese) |
+| **Training Corpus Size** | ~8.8M docs (EN) | ~8.8M docs (PT) |
+| **Validation Dataset** | MS MARCO Dev (EN) | mRobust (PT) |
+| **Test Dataset** | BEIR/TREC (EN) | mRobust (PT) |
+| **Base Model** | BERT-base-uncased | BERTimbau |
+| **Vocabulary** | ~30k tokens (EN) | 29,794 tokens (PT) |
+| **Cross-Lingual Test** | mRobust (PT) ⚠️ | mRobust (PT) ✅ |
+| **MRR@10 on PT data** | 0.383 | **0.453** (+18.3%) |
+
+**Key Insight**: The +18.3% performance improvement demonstrates that **native language training** is crucial for optimal retrieval quality. Cross-lingual models (EN→PT) significantly underperform compared to models trained directly on Portuguese data.
+
+---
+
+### Data Directory Structure
+
+```
+splade/data/pt/
+├── triplets/              # Training Data (mMARCO)
+│   ├── corpus.tsv         # 8.8M Portuguese documents
+│   ├── queries_train.tsv  # Training queries
+│   └── raw.tsv            # Query-doc-doc triplets
+│
+└── val_retrieval/         # Test Data (mRobust)
+    ├── collection/
+    │   └── raw.tsv        # 528k test documents
+    ├── queries/
+    │   └── raw.tsv        # 250 test queries
+    └── qrel.json          # Relevance judgments
+```
+
+**Download & Setup**: All datasets are automatically downloaded by `scripts/training/train_splade_pt.py` from HuggingFace Hub.
+
+---
+
 ## 🔬 Training
 
 <a name="training"></a>

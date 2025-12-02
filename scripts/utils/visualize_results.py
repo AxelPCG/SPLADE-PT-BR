@@ -305,7 +305,7 @@ def plot_metrics_comparison():
         for bar in bars:
             height = bar.get_height()
             ax1.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{height:.3f}',
+                   f'{height:.3f}',
                     ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     # 2. Difference chart
@@ -340,7 +340,7 @@ def plot_metrics_comparison():
     plt.close()
     
     print(f"   ✅ Saved to: {output_file}")
-    
+
     # Print summary
     avg_diff = np.mean(differences)
     print(f"      • Average difference: {avg_diff:+.4f}")

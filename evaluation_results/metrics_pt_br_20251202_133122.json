@@ -1,0 +1,9 @@
+{
+  "model": "SPLADE-PT-BR",
+  "timestamp": "2025-12-02T13:31:22.987179",
+  "metrics": {
+    "other_dataset": {
+      "recip_rank": 0.45313669532998235
+    }
+  }
+}

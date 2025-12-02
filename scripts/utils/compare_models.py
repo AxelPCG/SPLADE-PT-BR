@@ -50,8 +50,8 @@ def load_evaluation_results() -> Dict[str, Any]:
     if not PERF_FILE.exists():
         print(f"⚠️  Warning: Evaluation results not found at {PERF_FILE}")
         print("   Please run the evaluation pipeline first:")
-        print("   cd splade && python -m splade.index +config=config_splade_pt")
-        print("   cd splade && python -m splade.retrieve +config=config_splade_pt")
+        print("   cd splade && SPLADE_CONFIG_NAME=config_splade_pt python -m splade.index")
+        print("   cd splade && SPLADE_CONFIG_NAME=config_splade_pt python -m splade.retrieve")
         return None
     
     with open(PERF_FILE, 'r') as f:

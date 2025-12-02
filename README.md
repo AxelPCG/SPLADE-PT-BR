@@ -8,7 +8,7 @@
 
 **SPLADE sparse retrieval model trained for Brazilian Portuguese**
 
-[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](docs/USAGE.md) • [Training](#-training)
+[Model Card](https://huggingface.co/AxelPCG/splade-pt-br) • [Usage Guide](docs/USAGE.md) • [Training](#-training) • [Results](#-model-details--results)
 
 </div>
 
@@ -86,7 +86,7 @@ For complete examples including retrieval, see [USAGE.md](docs/USAGE.md).
 
 ---
 
-## 📊 Model Details
+## 📊 Model Details & Results
 
 | Metric | Value |
 |--------|-------|
@@ -97,6 +97,16 @@ For complete examples including retrieval, see [USAGE.md](docs/USAGE.md).
 | **Final Loss** | 0.000047 |
 | **Vocabulary Size** | 29,794 |
 | **Sparsity** | ~99.5% (100-150 active dims) |
+
+### Evaluation Results
+
+**Dataset**: mRobust (528k docs, 250 queries)
+
+| Metric | Score | Interpretation |
+|--------|-------|----------------|
+| **MRR@10** | **0.453** | First relevant doc at position ~2.2 |
+
+MRR@10 of 0.453 indicates **good retrieval quality** for Portuguese IR tasks.
 
 ---
 
@@ -137,7 +147,7 @@ The training notebook is available in `notebooks/SPLADE_v2_PTBR_treinamento.ipyn
 
 ```bash
 cd splade
-python3 -m splade.train_from_triplets_ids +config=config_splade_pt
+SPLADE_CONFIG_NAME=config_splade_pt python3 -m splade.train_from_triplets_ids
 ```
 
 ### Important Notes
@@ -152,20 +162,11 @@ python3 -m splade.train_from_triplets_ids +config=config_splade_pt
 ## 📈 Evaluation
 
 ```bash
-# 1. Index documents
-cd splade && python3 -m splade.index +config=config_splade_pt
-
-# 2. Retrieve and calculate metrics
-python3 -m splade.retrieve +config=config_splade_pt
-
-# 3. Compare with original SPLADE
-cd .. && python3 scripts/utils/compare_models.py
-
-# 4. Generate visualizations
-python3 scripts/utils/visualize_results.py
+# Run evaluation
+python scripts/evaluation/run_evaluation_comparator.py --pt-only
 ```
 
-Results are saved to `splade/experiments/pt/out/` and `docs/images/plots/`.
+Results saved to `evaluation_results/` with detailed metrics and execution summary.
 
 ---
 
@@ -173,44 +174,27 @@ Results are saved to `splade/experiments/pt/out/` and `docs/images/plots/`.
 
 ```
 SPLADE-PT-BR/
-├── docs/                         # Documentation
-│   ├── MODEL_CARD.md            # HuggingFace model card
-│   ├── USAGE.md                 # Complete usage guide
-│   └── images/plots/            # Training visualizations
-├── notebooks/                    # Jupyter notebooks
-│   └── SPLADE_v2_PTBR_treinamento.ipynb
-├── scripts/                      # Utility scripts
-│   ├── training/
-│   │   └── train_splade_pt.py   # Training pipeline
-│   └── utils/
-│       ├── upload_to_hf.py      # Upload to HuggingFace
-│       ├── compare_models.py    # Model comparison
-│       └── visualize_results.py # Generate plots
-├── splade/                       # SPLADE package (auto-cloned)
-├── main.py                       # Main entry point
-└── pyproject.toml               # Dependencies
+├── docs/USAGE.md                # Usage guide
+├── notebooks/                   # Training notebook
+├── scripts/
+│   ├── training/train_splade_pt.py
+│   └── evaluation/run_evaluation_comparator.py
+├── evaluation_results/          # Evaluation metrics
+└── splade/                      # Auto-cloned during training
 ```
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **SPLADE** - Original implementation by NAVER Labs ([naver/splade](https://github.com/naver/splade))
-- **leobavila/splade** - Fork used in this project ([leobavila/splade](https://github.com/leobavila/splade))
-- **BERTimbau** by Neuralmind team
-- **mMARCO Portuguese** and **mRobust Portuguese** datasets by UNICAMP-DL
-- **Quati Dataset** - Inspiration from native Portuguese IR research by Bueno et al. (2024)
-- Hugging Face for model hosting
-
-### Inspiration
-
-This project was inspired by the [Quati dataset](https://arxiv.org/abs/2404.06976) research, which demonstrated the importance of native Portuguese IR datasets over translated ones for better capturing socio-cultural aspects of Brazilian Portuguese.
+- **SPLADE** by NAVER Labs ([naver/splade](https://github.com/naver/splade)) and [leobavila/splade](https://github.com/leobavila/splade) fork
+- **BERTimbau** by Neuralmind
+- **mMARCO & mRobust Portuguese** by UNICAMP-DL
+- **Quati Dataset** research ([Bueno et al., 2024](https://arxiv.org/abs/2404.06976)) - Inspiration for native Portuguese IR
 
 ---
 
 ## 📚 Citation
-
-If you use this model, please cite:
 
 ```bibtex
 @misc{splade-pt-br-2025,
@@ -222,45 +206,16 @@ If you use this model, please cite:
 }
 ```
 
-### Related Work
-
-```bibtex
-@article{bueno2024quati,
-  title={Quati: A Brazilian Portuguese Information Retrieval Dataset from Native Speakers},
-  author={Bueno, Mirelle and de Oliveira, E. Seiti and Nogueira, Rodrigo and Lotufo, Roberto and Pereira, Jayr},
-  journal={arXiv preprint arXiv:2404.06976},
-  year={2024},
-  url={https://arxiv.org/abs/2404.06976}
-}
-
-@inproceedings{bonifacio2021mmarco,
-  title={mMARCO: A Multilingual Version of MS MARCO Passage Ranking Dataset},
-  author={Bonifacio, Luiz and Campiotti, Israel and Lotufo, Roberto and Nogueira, Rodrigo},
-  booktitle={Proceedings of STIL 2021},
-  year={2021},
-  url={https://sol.sbc.org.br/index.php/stil/article/view/31136}
-}
-
-@inproceedings{formal2021splade,
-  title={SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking},
-  author={Formal, Thibault and Piwowarski, Benjamin and Clinchant, St{\'e}phane},
-  booktitle={SIGIR 2021},
-  year={2021}
-}
-```
-
-**Implementation**: This project uses the [leobavila/splade](https://github.com/leobavila/splade) fork, based on the original [naver/splade](https://github.com/naver/splade) implementation.
-
 ---
 
 ## 📄 License
 
-Apache 2.0 License - see [LICENSE](LICENSE) file.
+Apache 2.0 License
 
 ---
 
 <div align="center">
-
+  
 **[View on Hugging Face](https://huggingface.co/AxelPCG/splade-pt-br)** • **[Usage Guide](docs/USAGE.md)**
 
 </div>

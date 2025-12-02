@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-12-02T13:31:22.987238",
+  "models": {
+    "splade_pt_br": {
+      "name": "SPLADE-PT-BR",
+      "language": "Portuguese (Brazilian)",
+      "base_model": "neuralmind/bert-base-portuguese-cased",
+      "dataset": "mMARCO Portuguese",
+      "results": {
+        "other_dataset": {
+          "recip_rank": 0.45313669532998235
+        }
+      }
+    }
+  },
+  "comparison": {}
+}

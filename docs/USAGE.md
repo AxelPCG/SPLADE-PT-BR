@@ -724,7 +724,7 @@ model = Splade(
     agg="max"
 )
 
-# Para o tokenizer, use o modelo base (BERTimbau)
+# For the tokenizer, use the base model (BERTimbau)
 from transformers import AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
 ```

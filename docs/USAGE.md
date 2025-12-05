@@ -730,7 +730,7 @@ tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased
 ```
 
 **Why does this happen?**
-- O repo HF contém apenas os pesos do BERT-MLM treinado
+- The HF repo contains only the trained BERT-MLM weights
 - The SPLADE logic (max aggregation, sparse encoding) is in the `Splade` Python class
 - Você precisa instanciar a classe manualmente passando o caminho do HF
 

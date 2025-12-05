@@ -704,7 +704,7 @@ for i, (content_id, text, score) in enumerate(recommendations, 1):
 
 ## 🐛 Troubleshooting
 
-### Erro: "model type `splade` not recognized by Transformers"
+### Error: "model type `splade` not recognized by Transformers"
 
 **Problema:** Você tentou usar `AutoModel.from_pretrained()` ou `AutoTokenizer.from_pretrained()` com o modelo SPLADE.
 

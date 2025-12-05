@@ -792,7 +792,7 @@ class VectorDBAdapter:
         # return results
         raise NotImplementedError("Implement for your DB")
 
-# Usage (Portuguese text - model trained for PT-BR):
+# Usage (example in Portuguese, as the model is trained for PT-BR):
 # adapter = VectorDBAdapter(your_db_client)
 # adapter.insert_document(1, "Texto do documento", {"categoria": "tech"})
 # results = adapter.search("sua query em português", top_k=5)

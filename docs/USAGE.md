@@ -731,7 +731,7 @@ tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased
 
 **Por que isso acontece?**
 - O repo HF contém apenas os pesos do BERT-MLM treinado
-- A lógica SPLADE (agregação max, sparse encoding) está na classe Python `Splade`
+- The SPLADE logic (max aggregation, sparse encoding) is in the `Splade` Python class
 - Você precisa instanciar a classe manualmente passando o caminho do HF
 
 ### Erro: Out of Memory

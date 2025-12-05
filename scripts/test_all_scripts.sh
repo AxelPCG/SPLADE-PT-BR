@@ -17,7 +17,6 @@ check() {
 }
 
 echo "Python syntax:"
-check "main.py" "python3 -m py_compile main.py"
 check "train_splade_pt.py" "python3 -m py_compile scripts/training/train_splade_pt.py"
 check "compare_models.py" "python3 -m py_compile scripts/utils/compare_models.py"
 check "visualize_results.py" "python3 -m py_compile scripts/utils/visualize_results.py"
@@ -38,8 +37,8 @@ echo ""
 echo "Files:"
 check "README.md" "[ -f README.md ]"
 check "docs/USAGE.md" "[ -f docs/USAGE.md ]"
-check "docs/MODEL_CARD.md" "[ -f docs/MODEL_CARD.md ]"
 check "pyproject.toml" "[ -f pyproject.toml ]"
+check "model_metadata.json" "[ -f model_metadata.json ]"
 
 echo ""
 echo "Directories:"

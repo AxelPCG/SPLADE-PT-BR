@@ -717,7 +717,7 @@ for i, (content_id, text, score) in enumerate(recommendations, 1):
 from transformers import AutoModel
 model = AutoModel.from_pretrained("AxelPCG/splade-pt-br")  # Erro!
 
-# ✅ CORRETO - Use a classe Splade diretamente
+# ✅ CORRECT - Use the Splade class directly
 from splade.models.transformer_rep import Splade
 model = Splade(
     model_type_or_dir="AxelPCG/splade-pt-br",

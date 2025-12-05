@@ -795,7 +795,7 @@ class VectorDBAdapter:
 # Usage (example in Portuguese, as the model is trained for PT-BR):
 # adapter = VectorDBAdapter(your_db_client)
 # adapter.insert_document(1, "Texto do documento", {"categoria": "tech"})
-# results = adapter.search("sua query em português", top_k=5)
+# results = adapter.search("your query in Portuguese", top_k=5)
 ```
 
 ### Example: Format for Different DBs

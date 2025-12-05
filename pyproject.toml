@@ -1,7 +1,7 @@
 [project]
 name = "splade-pt"
 version = "0.1.0"
-description = "Add your description here"
+description = "SPLADE sparse retrieval model for Brazilian Portuguese"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
@@ -19,7 +19,8 @@ dependencies = [
     "h5py>=3.15.1",
     "tensorboard>=2.20.0",
     "ipywidgets>=8.0.0",
+    "huggingface-hub>=0.20.0",
 ]
 
-# Nota: pytrec-eval requer python3.11-dev para compilar
-# Instale com: sudo apt-get install python3.11-dev build-essential
+# Note: pytrec-eval requires python3.11-dev to compile
+# Install with: sudo apt-get install python3.11-dev build-essential

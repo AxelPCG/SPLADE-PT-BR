@@ -78,7 +78,7 @@
   
   "huggingface": {
     "repo_id": "AxelPCG/splade-pt-br",
-    "model_type": "splade",
+    "model_type": "bert",
     "pipeline_tag": "feature-extraction",
     "license": "apache-2.0"
   },

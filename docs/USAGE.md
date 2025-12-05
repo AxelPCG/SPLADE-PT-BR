@@ -706,9 +706,9 @@ for i, (content_id, text, score) in enumerate(recommendations, 1):
 
 ### Error: "model type `splade` not recognized by Transformers"
 
-**Problema:** Você tentou usar `AutoModel.from_pretrained()` ou `AutoTokenizer.from_pretrained()` com o modelo SPLADE.
+**Problem:** Você tentou usar `AutoModel.from_pretrained()` ou `AutoTokenizer.from_pretrained()` com o modelo SPLADE.
 
-**Causa:** SPLADE é uma arquitetura customizada que não está registrada no registro do Transformers.
+**Cause:** SPLADE é uma arquitetura customizada que não está registrada no registro do Transformers.
 
 **Solução:**
 

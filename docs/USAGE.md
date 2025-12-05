@@ -710,7 +710,7 @@ for i, (content_id, text, score) in enumerate(recommendations, 1):
 
 **Cause:** SPLADE é uma arquitetura customizada que não está registrada no registro do Transformers.
 
-**Solução:**
+**Solution:**
 
 ```python
 # ❌ ERRADO - Não funciona

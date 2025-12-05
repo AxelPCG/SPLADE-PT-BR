@@ -45,28 +45,45 @@ uv sync
 ```python
 from transformers import AutoTokenizer
 from splade.models.transformer_rep import Splade
+import torch
 
-model = Splade.from_pretrained("AxelPCG/splade-pt-br")
+# Initialize SPLADE model with the trained BERT-MLM from HuggingFace
+model = Splade(
+    model_type_or_dir="AxelPCG/splade-pt-br",  # HF repo with trained BERT-MLM weights
+    agg="max"  # Aggregation method used during training
+)
 tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
+
+# Set to evaluation mode and move to device
+model.eval()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 ```
+
+> **⚠️ Important:** SPLADE is a custom architecture and cannot be loaded with `AutoModel.from_pretrained()`. You must instantiate the `Splade` class directly as shown above.
 
 ### Encode Text
 
 ```python
-import torch
-
 # Encode query
 query = "Qual é a capital do Brasil?"
 query_tokens = tokenizer(query, return_tensors="pt", max_length=256, truncation=True)
+
+# Move tokens to device
+query_tokens = {k: v.to(device) for k, v in query_tokens.items()}
 
 with torch.no_grad():
     query_vec = model(q_kwargs=query_tokens)["q_rep"].squeeze()
 
 # Get sparse representation
-indices = torch.nonzero(query_vec).squeeze().tolist()
-values = query_vec[indices].tolist()
+indices = torch.nonzero(query_vec).squeeze()
+if indices.dim() == 0:  # Handle single element case
+    indices = indices.unsqueeze(0)
+indices = indices.cpu().tolist()
+values = query_vec[indices].cpu().tolist()
 
-print(f"Sparsity: {len(indices)} / {query_vec.shape[0]} dimensions")
+print(f"Active dimensions: {len(indices)} / {query_vec.shape[0]}")
+print(f"Sparsity: {(1 - len(indices) / query_vec.shape[0]) * 100:.1f}%")
 # Output: ~120 / 29794 dimensions (~99.6% sparse)
 ```
 

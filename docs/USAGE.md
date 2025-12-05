@@ -30,7 +30,12 @@ from splade.models.transformer_rep import Splade
 import torch
 
 # Load model from Hugging Face
-model = Splade.from_pretrained("AxelPCG/splade-pt-br")
+# Note: SPLADE is a custom architecture that wraps a BERT-MLM model
+# You cannot use AutoModel.from_pretrained() - must instantiate Splade class directly
+model = Splade(
+    model_type_or_dir="AxelPCG/splade-pt-br",  # HF repo with trained BERT-MLM weights
+    agg="max"  # Aggregation method (max or sum) - use "max" for this model
+)
 tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
 
 # Set to evaluation mode and move to GPU (if available)
@@ -40,6 +45,11 @@ model.to(device)
 
 print(f"✅ Model loaded on device: {device}")
 ```
+
+> **⚠️ Common Error:** 
+> - ❌ `model = AutoModel.from_pretrained("AxelPCG/splade-pt-br")` → This will fail!
+> - ❌ `model = Splade.from_pretrained("AxelPCG/splade-pt-br")` → `from_pretrained()` doesn't exist on Splade class
+> - ✅ `model = Splade(model_type_or_dir="AxelPCG/splade-pt-br", agg="max")` → Correct way!
 
 ---
 
@@ -93,16 +103,16 @@ def encode_text(text, is_query=True):
         "sparsity": 1 - (len(indices) / vec.shape[0])
     }
 
-# Usage example
+# Usage example (Portuguese queries - model trained for PT-BR)
 query = "Qual é a capital do Brasil?"
 doc = "Brasília é a capital federal do Brasil desde 1960."
 
 query_vec = encode_text(query, is_query=True)
 doc_vec = encode_text(doc, is_query=False)
 
-print(f"Query - Dimensões ativas: {query_vec['num_active']}")
-print(f"Query - Esparsidade: {query_vec['sparsity']:.2%}")
-print(f"Doc - Dimensões ativas: {doc_vec['num_active']}")
+print(f"Query - Active dimensions: {query_vec['num_active']}")
+print(f"Query - Sparsity: {query_vec['sparsity']:.2%}")
+print(f"Doc - Active dimensions: {doc_vec['num_active']}")
 ```
 
 ### Calculate Similarity
@@ -110,13 +120,13 @@ print(f"Doc - Dimensões ativas: {doc_vec['num_active']}")
 ```python
 def calculate_similarity(query_vec, doc_vec):
     """
-    Calcula similaridade entre query e documento (produto escalar)
+    Calculate similarity between query and document (dot product)
     
     Args:
-        query_vec, doc_vec: Saídas de encode_text()
+        query_vec, doc_vec: Outputs from encode_text()
     
     Returns:
-        float: Score de similaridade
+        float: Similarity score
     """
     # Convert to dictionary for fast access
     doc_dict = dict(zip(doc_vec["indices"], doc_vec["values"]))
@@ -130,9 +140,9 @@ def calculate_similarity(query_vec, doc_vec):
     
     return score
 
-# Calcular similaridade
+# Calculate similarity
 similarity = calculate_similarity(query_vec, doc_vec)
-print(f"Similaridade: {similarity:.4f}")
+print(f"Similarity: {similarity:.4f}")
 ```
 
 ### Inspect Expanded Terms
@@ -163,7 +173,7 @@ def inspect_sparse_representation(sparse_vec, tokenizer, top_k=20):
         token = id_to_token.get(idx, f"<UNK_{idx}>")
         print(f"  {token:20s} → {weight:.4f}")
 
-# Inspect query
+# Inspect query (Portuguese - model trained for PT-BR)
 query = "remédio para dor de cabeça"
 query_vec = encode_text(query, is_query=True)
 inspect_sparse_representation(query_vec, tokenizer, top_k=15)
@@ -183,22 +193,22 @@ inspect_sparse_representation(query_vec, tokenizer, top_k=15)
 
 ### Basic Implementation
 
-Esta implementação usa um índice invertido simples que pode ser facilmente adaptado para qualquer banco vetorial.
+This implementation uses a simple inverted index that can be easily adapted for any vector database.
 
 ```python
 class SimpleSparseRetriever:
-    """Sistema de busca simples usando índice invertido"""
+    """Simple search system using inverted index"""
     
     def __init__(self):
         self.documents = {}
         self.inverted_index = {}
     
     def add_document(self, doc_id, text):
-        """Adiciona documento ao índice"""
-        # Armazenar documento
+        """Add document to index"""
+        # Store document
         self.documents[doc_id] = text
         
-        # Codificar documento
+        # Encode document
         doc_vec = encode_text(text, is_query=False)
         
         # Add to inverted index
@@ -208,10 +218,10 @@ class SimpleSparseRetriever:
             self.inverted_index[idx].append((doc_id, value))
     
     def add_documents_batch(self, documents):
-        """Adiciona múltiplos documentos"""
+        """Add multiple documents"""
         for doc_id, text in documents.items():
             self.add_document(doc_id, text)
-        print(f"✅ {len(documents)} documentos indexados")
+        print(f"✅ {len(documents)} documents indexed")
     
     def search(self, query, top_k=10):
         """
@@ -234,23 +244,23 @@ class SimpleSparseRetriever:
                 for doc_id, d_value in self.inverted_index[idx]:
                     scores[doc_id] = scores.get(doc_id, 0) + (q_value * d_value)
         
-        # Ordenar por score
+        # Sort by score
         results = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
         
         return [(doc_id, self.documents[doc_id], score) for doc_id, score in results]
     
     def get_stats(self):
-        """Retorna estatísticas do índice"""
+        """Return index statistics"""
         return {
             "num_documents": len(self.documents),
             "num_terms": len(self.inverted_index),
             "avg_doc_length": sum(len(self.inverted_index.get(i, [])) for i in range(len(self.inverted_index))) / max(1, len(self.documents))
         }
 
-# Exemplo de uso
+# Usage example (Portuguese content - model trained for PT-BR)
 retriever = SimpleSparseRetriever()
 
-# Indexar documentos
+# Index documents
 docs = {
     1: "Brasília é a capital do Brasil desde 1960.",
     2: "O Python é uma linguagem de programação de alto nível.",
@@ -261,19 +271,19 @@ docs = {
 
 retriever.add_documents_batch(docs)
 
-# Buscar
+# Search
 query = "Qual a capital brasileira?"
 results = retriever.search(query, top_k=3)
 
-print(f"\n🔍 Resultados para: '{query}'\n")
+print(f"\n🔍 Results for: '{query}'\n")
 for i, (doc_id, text, score) in enumerate(results, 1):
     print(f"{i}. [Score: {score:.4f}] {text}")
 
 # Statistics
 stats = retriever.get_stats()
-print(f"\n📊 Estatísticas do índice:")
-print(f"   Documentos: {stats['num_documents']}")
-print(f"   Termos únicos: {stats['num_terms']}")
+print(f"\n📊 Index statistics:")
+print(f"   Documents: {stats['num_documents']}")
+print(f"   Unique terms: {stats['num_terms']}")
 ```
 
 ---
@@ -318,20 +328,20 @@ def adapt_for_vector_db(sparse_vec):
         for idx, val in zip(sparse_vec["indices"], sparse_vec["values"])
     ]
     
-    # Formato 3: Arrays separados (NumPy/JSON)
+    # Format 3: Separate arrays (NumPy/JSON)
     array_format = {
-        "indices": sparse_vec["indices"],  # Lista de ints
-        "values": sparse_vec["values"]     # Lista de floats
+        "indices": sparse_vec["indices"],  # List of ints
+        "values": sparse_vec["values"]     # List of floats
     }
     
-    # Retorne o formato que seu DB precisa
-    return array_format  # ou dict_format, ou tuple_format
+    # Return the format your DB needs
+    return array_format  # or dict_format, or tuple_format
 
-# Exemplo de uso
-doc_vec = encode_text("Seu documento aqui", is_query=False)
+# Usage example (Portuguese text - model trained for PT-BR)
+doc_vec = encode_text("Seu documento em português aqui", is_query=False)
 db_format = adapt_for_vector_db(doc_vec)
 
-# Agora use db_format com a API do seu banco vetorial
+# Now use db_format with your vector database API
 # your_vector_db.insert(id=1, vector=db_format, metadata={...})
 ```
 
@@ -340,24 +350,24 @@ db_format = adapt_for_vector_db(doc_vec)
 ```python
 def search_in_vector_db(query_text, your_db_client, collection_name, top_k=10):
     """
-    Template genérico para busca em qualquer banco vetorial
+    Generic template for searching in any vector database
     
-    Adapte as chamadas de API para seu banco específico
+    Adapt the API calls for your specific database
     """
-    # 1. Codificar query
+    # 1. Encode query
     query_vec = encode_text(query_text, is_query=True)
     
-    # 2. Adaptar formato
+    # 2. Adapt format
     db_query = adapt_for_vector_db(query_vec)
     
-    # 3. Buscar (adapte esta linha para sua API)
+    # 3. Search (adapt this line for your API)
     # results = your_db_client.search(
     #     collection=collection_name,
     #     query_vector=db_query,
     #     limit=top_k
     # )
     
-    # 4. Processar resultados (formato varia por DB)
+    # 4. Process results (format varies by DB)
     # return results
     pass
 ```
@@ -370,59 +380,59 @@ def search_in_vector_db(query_text, your_db_client, collection_name, top_k=10):
 
 ```python
 class RAGPipeline:
-    """Pipeline RAG completo com SPLADE retriever"""
+    """Complete RAG pipeline with SPLADE retriever"""
     
     def __init__(self, retriever, llm_function):
         """
         Args:
-            retriever: Instância de SimpleSparseRetriever
-            llm_function: Função que recebe prompt e retorna resposta
+            retriever: Instance of SimpleSparseRetriever
+            llm_function: Function that receives prompt and returns answer
         """
         self.retriever = retriever
         self.llm = llm_function
     
     def query(self, question, top_k=3, return_sources=True):
         """
-        Processa pergunta usando RAG
+        Process question using RAG
         
         Args:
-            question: Pergunta do usuário
-            top_k: Número de documentos para contexto
-            return_sources: Se deve retornar fontes
+            question: User question
+            top_k: Number of documents for context
+            return_sources: Whether to return sources
         
         Returns:
-            dict com 'answer', 'sources', 'scores'
+            dict with 'answer', 'sources', 'scores'
         """
-        # 1. Recuperar documentos relevantes
-        print(f"🔍 Buscando documentos para: '{question}'")
+        # 1. Retrieve relevant documents
+        print(f"🔍 Searching documents for: '{question}'")
         results = self.retriever.search(question, top_k=top_k)
         
         if not results:
             return {
-                "answer": "Não encontrei documentos relevantes para responder sua pergunta.",
+                "answer": "I couldn't find relevant documents to answer your question.",
                 "sources": [],
                 "scores": []
             }
         
-        # 2. Montar contexto
+        # 2. Build context
         context_parts = []
         for i, (doc_id, text, score) in enumerate(results, 1):
-            context_parts.append(f"[Documento {i}] {text}")
+            context_parts.append(f"[Document {i}] {text}")
         
         context = "\n\n".join(context_parts)
         
         # 3. Criar prompt
         prompt = f"""Baseado nos seguintes documentos, responda a pergunta de forma precisa e concisa.
 
-Documentos:
+Documents:
 {context}
 
-Pergunta: {question}
+Question: {question}
 
-Resposta (baseada apenas nos documentos fornecidos):"""
+Answer (based only on the provided documents):"""
         
-        # 4. Gerar resposta com LLM
-        print("🤖 Gerando resposta...")
+        # 4. Generate answer with LLM
+        print("🤖 Generating answer...")
         answer = self.llm(prompt)
         
         result = {
@@ -434,11 +444,11 @@ Resposta (baseada apenas nos documentos fornecidos):"""
         return result
     
     def format_response(self, result):
-        """Formata resposta para exibição"""
-        output = f"\n📝 Resposta:\n{result['answer']}\n"
+        """Format response for display"""
+        output = f"\n📝 Answer:\n{result['answer']}\n"
         
         if result['sources']:
-            output += f"\n📚 Fontes ({len(result['sources'])}):\n"
+            output += f"\n📚 Sources ({len(result['sources'])}):\n"
             for i, (source, score) in enumerate(zip(result['sources'], result['scores']), 1):
                 output += f"  {i}. [Score: {score:.3f}] {source}\n"
         
@@ -447,18 +457,18 @@ Resposta (baseada apenas nos documentos fornecidos):"""
 # Usage example with mock LLM (replace with your implementation)
 def mock_llm(prompt):
     """
-    Substitua esta função pela sua chamada de LLM real
-    (OpenAI, Anthropic, modelo local, etc.)
+    Replace this function with your real LLM call
+    (OpenAI, Anthropic, local model, etc.)
     """
-    # Exemplo simples: extrair resposta do contexto
+    # Simple example: extract answer from context
     if "capital" in prompt.lower() and "brasil" in prompt.lower():
         return "Brasília é a capital do Brasil desde 1960."
     return "Com base nos documentos fornecidos, posso responder que..."
 
-# Criar pipeline RAG
+# Create RAG pipeline
 rag = RAGPipeline(retriever, mock_llm)
 
-# Fazer pergunta
+# Ask question (Portuguese - model trained for PT-BR)
 question = "Qual é a capital do Brasil?"
 result = rag.query(question, top_k=3)
 print(rag.format_response(result))
@@ -473,15 +483,15 @@ print(rag.format_response(result))
 ```python
 def encode_batch(texts, is_query=True, batch_size=32):
     """
-    Codifica múltiplos textos em batch para maior eficiência
+    Encode multiple texts in batch for better efficiency
     
     Args:
-        texts: Lista de textos
-        is_query: True para queries, False para documentos
-        batch_size: Tamanho do batch
+        texts: List of texts
+        is_query: True for queries, False for documents
+        batch_size: Batch size
     
     Returns:
-        Lista de dicts com representações esparsas
+        List of dicts with sparse representations
     """
     results = []
     
@@ -521,10 +531,10 @@ def encode_batch(texts, is_query=True, batch_size=32):
     
     return results
 
-# Exemplo: codificar 100 documentos em batch
+# Example: encode 100 documents in batch (Portuguese - model trained for PT-BR)
 docs = [f"Documento sobre tópico {i}" for i in range(100)]
 encoded = encode_batch(docs, is_query=False, batch_size=16)
-print(f"✅ {len(encoded)} documentos codificados")
+print(f"✅ {len(encoded)} documents encoded")
 ```
 
 ### Embedding Cache
@@ -534,12 +544,12 @@ from functools import lru_cache
 
 @lru_cache(maxsize=10000)
 def encode_cached(text, is_query=True):
-    """Versão com cache do encode_text"""
+    """Cached version of encode_text"""
     result = encode_text(text, is_query=is_query)
-    # Converter listas para tuplas para ser hashable
+    # Convert lists to tuples to be hashable
     return tuple(result["indices"]), tuple(result["values"])
 
-# Usage: automatic caching for repeated texts
+# Usage: automatic caching for repeated texts (Portuguese queries)
 vec1 = encode_cached("capital do Brasil", is_query=True)  # Calculates
 vec2 = encode_cached("capital do Brasil", is_query=True)  # Returns from cache
 ```
@@ -551,10 +561,10 @@ vec2 = encode_cached("capital do Brasil", is_query=True)  # Returns from cache
 ### Example 1: FAQ Search
 
 ```python
-# Criar retriever
+# Create retriever
 faq_retriever = SimpleSparseRetriever()
 
-# Adicionar FAQs
+# Add FAQs (Portuguese content - model trained for PT-BR)
 faqs = {
     1: "Como faço para resetar minha senha? Acesse a página de login e clique em 'Esqueci minha senha'.",
     2: "Qual o prazo de entrega? O prazo é de 5-7 dias úteis para todo o Brasil.",
@@ -565,13 +575,13 @@ faqs = {
 
 faq_retriever.add_documents_batch(faqs)
 
-# Buscar FAQ similar
+# Search for similar FAQ
 pergunta_usuario = "esqueci minha senha como recuperar"
 results = faq_retriever.search(pergunta_usuario, top_k=1)
 
 if results:
     doc_id, faq_text, score = results[0]
-    print(f"FAQ correspondente (score: {score:.2f}):")
+    print(f"Matching FAQ (score: {score:.2f}):")
     print(f"  {faq_text}")
 ```
 
@@ -581,6 +591,7 @@ if results:
 # Technical knowledge base
 kb_retriever = SimpleSparseRetriever()
 
+# Articles in Portuguese (model trained for PT-BR)
 articles = {
     1: "Python é uma linguagem interpretada de alto nível, conhecida por sua sintaxe clara.",
     2: "Machine Learning é um subcampo da IA que permite sistemas aprenderem com dados.",
@@ -591,7 +602,7 @@ articles = {
 
 kb_retriever.add_documents_batch(articles)
 
-# Search with semantic expansion
+# Search with semantic expansion (Portuguese queries)
 queries = [
     "aprendizado de máquina",  # Will find "Machine Learning"
     "processamento de texto",  # Will find "Natural Language Processing"
@@ -609,25 +620,25 @@ for query in queries:
 
 ```python
 class ContentRecommender:
-    """Recomendador de conteúdo baseado em SPLADE"""
+    """SPLADE-based content recommender"""
     
     def __init__(self):
         self.retriever = SimpleSparseRetriever()
         self.user_history = {}
     
     def add_content(self, content_id, title, description):
-        """Adiciona conteúdo ao sistema"""
+        """Add content to system"""
         full_text = f"{title}. {description}"
         self.retriever.add_document(content_id, full_text)
     
     def record_interaction(self, user_id, content_id):
-        """Registra interação do usuário"""
+        """Record user interaction"""
         if user_id not in self.user_history:
             self.user_history[user_id] = []
         self.user_history[user_id].append(content_id)
     
     def recommend(self, user_id, top_k=5):
-        """Recomenda conteúdo baseado no histórico"""
+        """Recommend content based on history"""
         if user_id not in self.user_history or not self.user_history[user_id]:
             return []
         
@@ -653,7 +664,7 @@ class ContentRecommender:
         
         return recommendations
 
-# Exemplo de uso
+# Usage example (Portuguese content - model trained for PT-BR)
 recommender = ContentRecommender()
 
 # Add content
@@ -672,9 +683,9 @@ for content_id, (title, desc) in contents.items():
 recommender.record_interaction("user1", 1)  # Viewed Python Básico
 recommender.record_interaction("user1", 2)  # Viewed Machine Learning
 
-# Recomendar
+# Recommend
 recommendations = recommender.recommend("user1", top_k=3)
-print("\n💡 Recomendações para user1:")
+print("\n💡 Recommendations for user1:")
 for i, (content_id, text, score) in enumerate(recommendations, 1):
     print(f"  {i}. [Score: {score:.2f}] {text[:60]}...")
 ```
@@ -692,6 +703,36 @@ for i, (content_id, text, score) in enumerate(recommendations, 1):
 ---
 
 ## 🐛 Troubleshooting
+
+### Erro: "model type `splade` not recognized by Transformers"
+
+**Problema:** Você tentou usar `AutoModel.from_pretrained()` ou `AutoTokenizer.from_pretrained()` com o modelo SPLADE.
+
+**Causa:** SPLADE é uma arquitetura customizada que não está registrada no registro do Transformers.
+
+**Solução:**
+
+```python
+# ❌ ERRADO - Não funciona
+from transformers import AutoModel
+model = AutoModel.from_pretrained("AxelPCG/splade-pt-br")  # Erro!
+
+# ✅ CORRETO - Use a classe Splade diretamente
+from splade.models.transformer_rep import Splade
+model = Splade(
+    model_type_or_dir="AxelPCG/splade-pt-br",
+    agg="max"
+)
+
+# Para o tokenizer, use o modelo base (BERTimbau)
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("neuralmind/bert-base-portuguese-cased")
+```
+
+**Por que isso acontece?**
+- O repo HF contém apenas os pesos do BERT-MLM treinado
+- A lógica SPLADE (agregação max, sparse encoding) está na classe Python `Splade`
+- Você precisa instanciar a classe manualmente passando o caminho do HF
 
 ### Erro: Out of Memory
 
@@ -725,36 +766,36 @@ print(f"Sparsity: {vec['sparsity']:.2%}")
 ```python
 class VectorDBAdapter:
     """
-    Classe adaptadora genérica para qualquer banco vetorial
-    Implemente os métodos abstratos para seu DB específico
+    Generic adapter class for any vector database
+    Implement the abstract methods for your specific DB
     """
     
     def __init__(self, db_client):
         self.client = db_client
     
     def format_vector(self, sparse_vec):
-        """Converte para formato do seu DB"""
-        raise NotImplementedError("Implemente para seu DB")
+        """Convert to your DB format"""
+        raise NotImplementedError("Implement for your DB")
     
     def insert_document(self, doc_id, text, metadata=None):
-        """Insere documento no DB"""
+        """Insert document into DB"""
         vec = encode_text(text, is_query=False)
         db_vec = self.format_vector(vec)
         # self.client.insert(doc_id, db_vec, metadata)
-        raise NotImplementedError("Implemente para seu DB")
+        raise NotImplementedError("Implement for your DB")
     
     def search(self, query, top_k=10, filters=None):
-        """Busca documentos"""
+        """Search documents"""
         query_vec = encode_text(query, is_query=True)
         db_query = self.format_vector(query_vec)
         # results = self.client.search(db_query, top_k, filters)
         # return results
-        raise NotImplementedError("Implemente para seu DB")
+        raise NotImplementedError("Implement for your DB")
 
-# Uso:
+# Usage (Portuguese text - model trained for PT-BR):
 # adapter = VectorDBAdapter(your_db_client)
 # adapter.insert_document(1, "Texto do documento", {"categoria": "tech"})
-# results = adapter.search("sua query", top_k=5)
+# results = adapter.search("sua query em português", top_k=5)
 ```
 
 ### Example: Format for Different DBs
@@ -772,7 +813,7 @@ def format_as_numpy(sparse_vec):
         dense[idx] = val
     return dense
 
-# Para DBs que usam formato COO (Coordinate)
+# For DBs that use COO (Coordinate) format
 def format_as_coo(sparse_vec):
     return {
         "indices": sparse_vec["indices"],
